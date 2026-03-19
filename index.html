@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HAZEL TIMER</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;1,300&family=DM+Mono:wght@300;400&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+@import url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_six@1.2/S-CoreDream-3Light.css');
+</style>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+–bg: #050403;
+–card: #0a0800;
+–card2: #110e00;
+–gold: #d4a843;
+–gold-light: #f0c84a;
+–gold-pale: #ffe080;
+–gold-dim: rgba(212,168,67,0.18);
+–gold-glow: rgba(212,168,67,0.32);
+–gold-border: rgba(212,168,67,0.45);
+–text: #fff8e7;
+–muted: rgba(255,248,231,0.5);
+–muted2: rgba(255,248,231,0.22);
+–red: #c95c4c;
+–green: #7aba8a;
+–digit-bg: #0d0a00;
+–digit-top: #131000;
+–digit-bot: #080600;
+}
+
+html, body {
+min-height: 100vh;
+background: var(–bg);
+display: flex; align-items: center; justify-content: center;
+font-family: ‘DM Mono’, monospace;
+}
+
+/* ── WRAPPER ── */
+.wrap {
+width: 320px;
+background: var(–card);
+border: 1px solid var(–gold-border);
+border-radius: 6px;
+padding: 20px 20px 24px;
+position: relative;
+box-shadow:
+0 0 0 1px rgba(0,0,0,0.8),
+0 30px 80px rgba(0,0,0,0.8),
+inset 0 1px 0 rgba(201,168,76,0.08);
+}
+
+/* top shimmer line */
+.wrap::before {
+content:’’;
+position:absolute; top:0; left:8%; right:8%; height:1px;
+background: linear-gradient(90deg, transparent, var(–gold-light), transparent);
+opacity: 0.9;
+}
+
+/* corner accents */
+.wrap::after {
+content:’’;
+position:absolute;
+top: 8px; left: 8px;
+width: 18px; height: 18px;
+border-top: 1px solid var(–gold-border);
+border-left: 1px solid var(–gold-border);
+border-radius: 2px 0 0 0;
+}
+.corner-br {
+position:absolute;
+bottom: 8px; right: 8px;
+width: 18px; height: 18px;
+border-bottom: 1px solid var(–gold-border);
+border-right: 1px solid var(–gold-border);
+border-radius: 0 0 2px 0;
+}
+
+/* ── HEADER ── */
+.header {
+display: flex;
+align-items: center;
+justify-content: space-between;
+margin-bottom: 12px;
+gap: 10px;
+}
+
+.quote {
+font-family: ‘S-CoreDream-3Light’, sans-serif;
+font-style: normal;
+font-size: 9px;
+font-weight: 300;
+color: rgba(255,248,231,0.5);
+line-height: 1.6;
+letter-spacing: 0.03em;
+flex: 1;
+}
+
+.tabs {
+display: flex;
+background: var(–card2);
+border: 1px solid var(–gold-border);
+border-radius: 4px;
+padding: 3px;
+gap: 2px;
+flex-shrink: 0;
+}
+.tab {
+padding: 5px 13px;
+font-family: ‘DM Mono’, monospace;
+font-size: 9px; letter-spacing: 0.14em;
+text-transform: uppercase;
+background: transparent; border: none;
+border-radius: 3px;
+color: var(–muted); cursor: pointer;
+transition: all 0.2s;
+}
+.tab.active {
+background: var(–gold-dim);
+color: var(–gold-light);
+border: 1px solid var(–gold-border);
+}
+
+/* ── DIVIDER ── */
+.hdivider {
+height: 1px;
+background: linear-gradient(90deg, transparent, var(–gold-border), transparent);
+margin-bottom: 14px;
+}
+
+/* ── POMO MODE BAR ── */
+.mode-bar {
+display: flex; gap: 6px;
+margin-bottom: 22px;
+}
+.mode-btn {
+flex: 1; padding: 7px 0;
+font-family: ‘DM Mono’, monospace;
+font-size: 9px; letter-spacing: 0.1em;
+text-transform: uppercase;
+border: 1px solid var(–gold-border);
+border-radius: 3px;
+background: transparent; color: var(–muted);
+cursor: pointer; transition: all 0.2s;
+}
+.mode-btn.active {
+background: var(–gold-dim);
+color: var(–gold); border-color: var(–gold);
+}
+
+/* ── FLIP DIGITS ── */
+.display-row {
+display: flex;
+align-items: center;
+justify-content: center;
+gap: 7px;
+padding: 14px 12px 12px;
+background: var(–digit-bg);
+border: 1px solid rgba(201,168,76,0.12);
+border-radius: 6px;
+margin-bottom: 6px;
+position: relative;
+overflow: hidden;
+}
+
+/* subtle inner shadow top */
+.display-row::before {
+content:’’;
+position:absolute; top:0; left:0; right:0; height:30px;
+background: linear-gradient(to bottom, rgba(0,0,0,0.3), transparent);
+pointer-events: none;
+}
+
+.digit-group { display: flex; gap: 3px; }
+
+.digit-block {
+width: 42px; height: 56px;
+position: relative;
+border-radius: 4px;
+overflow: hidden;
+box-shadow:
+0 4px 16px rgba(0,0,0,0.6),
+inset 0 1px 0 rgba(255,255,255,0.04),
+0 0 0 1px rgba(201,168,76,0.1);
+}
+
+/* top half */
+.digit-block .top {
+position: absolute;
+top: 0; left: 0; right: 0; height: 50%;
+background: var(–digit-top);
+display: flex; align-items: flex-end; justify-content: center;
+overflow: hidden;
+border-radius: 4px 4px 0 0;
+}
+
+/* bottom half */
+.digit-block .bot {
+position: absolute;
+bottom: 0; left: 0; right: 0; height: 50%;
+background: var(–digit-bot);
+display: flex; align-items: flex-start; justify-content: center;
+overflow: hidden;
+border-radius: 0 0 4px 4px;
+}
+
+/* fold line */
+.digit-block::after {
+content:’’;
+position:absolute;
+top:50%; left:0; right:0;
+height:1px;
+background: rgba(0,0,0,0.7);
+z-index: 10;
+}
+
+.digit-val {
+font-family: ‘Bebas Neue’, sans-serif;
+font-size: 34px; font-weight: 400;
+color: var(–gold-light);
+line-height: 1;
+text-shadow: 0 0 30px rgba(212,168,67,0.6), 0 0 60px rgba(212,168,67,0.2);
+position: absolute;
+top: 50%; left: 50%;
+transform: translate(-50%, -50%);
+z-index: 5;
+transition: color 0.3s;
+white-space: nowrap;
+letter-spacing: 0.02em;
+}
+
+/* colon */
+.colon {
+display: flex; flex-direction: column;
+gap: 12px; padding-bottom: 4px;
+}
+.colon-dot {
+width: 5px; height: 5px; border-radius: 50%;
+background: var(–gold);
+box-shadow: 0 0 8px rgba(201,168,76,0.7);
+transition: opacity 0.5s;
+}
+.colon.dim .colon-dot { opacity: 0.15; }
+
+/* ms for stopwatch */
+.ms-badge {
+font-family: ‘DM Mono’, monospace;
+font-size: 12px; font-weight: 300;
+color: var(–muted);
+align-self: flex-end;
+padding-bottom: 14px;
+letter-spacing: 0.05em;
+}
+
+/* ── DISPLAY FOOTER (label) ── */
+.display-footer {
+display: flex;
+align-items: center;
+justify-content: space-between;
+padding: 0 2px;
+margin-bottom: 20px;
+}
+.d-label {
+font-size: 9px; letter-spacing: 0.22em;
+text-transform: uppercase; color: var(–gold);
+opacity: 0.6;
+}
+.d-right {
+font-size: 9px; letter-spacing: 0.1em;
+color: var(–muted);
+}
+
+/* ── POMO DOTS ── */
+.dots {
+display: flex; justify-content: center;
+gap: 8px; margin-bottom: 22px;
+}
+.dot {
+width: 6px; height: 6px; border-radius: 50%;
+border: 1px solid var(–gold-border);
+transition: all 0.4s;
+}
+.dot.done {
+background: var(–gold); border-color: var(–gold);
+box-shadow: 0 0 8px rgba(201,168,76,0.5);
+}
+
+/* ── SETTER ── */
+.setter {
+padding: 10px 0 4px;
+margin-bottom: 4px;
+}
+.setter-row {
+display: flex; align-items: center;
+justify-content: center; gap: 2px;
+}
+.s-group {
+display: flex; flex-direction: column;
+align-items: center; gap: 4px;
+}
+.s-arrow {
+background: transparent;
+border: 1px solid var(–gold-border);
+border-radius: 3px;
+color: var(–muted);
+width: 42px; height: 20px;
+font-size: 9px; cursor: pointer;
+transition: all 0.15s;
+}
+.s-arrow:hover { color: var(–gold-light); border-color: var(–gold); background: var(–gold-dim); }
+.s-num {
+font-family: ‘Bebas Neue’, sans-serif;
+font-size: 38px; font-weight: 400;
+color: var(–gold-light); line-height: 1;
+min-width: 56px; text-align: center;
+text-shadow: 0 0 30px rgba(212,168,67,0.5), 0 0 60px rgba(212,168,67,0.15);
+}
+.s-sep {
+font-family: ‘Bebas Neue’, sans-serif;
+font-size: 28px; font-weight: 400; color: var(–gold-border);
+padding: 0 1px; margin-top: -6px;
+}
+.s-labels {
+display: flex; justify-content: center;
+gap: 0; margin-top: 4px; margin-bottom: 16px;
+}
+.s-lbl {
+font-size: 8px; letter-spacing: 0.15em;
+text-transform: uppercase; color: var(–muted2);
+min-width: 56px; text-align: center;
+}
+
+/* ── CONTROLS ── */
+.btn-main {
+background: none; border: none;
+color: var(–muted);
+font-family: ‘DM Mono’, monospace;
+font-size: 8px; letter-spacing: 0.25em;
+text-transform: uppercase;
+cursor: pointer;
+padding: 2px 0;
+border-bottom: 1px solid transparent;
+transition: all 0.2s;
+display: block;
+}
+.btn-main:hover { color: var(–gold); border-bottom-color: var(–gold); }
+.btn-main.running { color: var(–red); border-bottom-color: var(–red); }
+
+.btn-reset {
+background: none; border: none;
+color: var(–muted2);
+font-family: ‘DM Mono’, monospace;
+font-size: 7px; letter-spacing: 0.18em;
+text-transform: uppercase;
+cursor: pointer;
+margin-top: 4px;
+transition: color 0.2s;
+display: block;
+}
+.btn-reset:hover { color: var(–muted); }
+
+/* right side button column */
+.side-actions {
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+gap: 8px;
+padding-left: 16px;
+}
+
+/* ── RUNNING GLOW ── */
+@keyframes ambient {
+0%,100% { box-shadow: 0 0 0 1px rgba(0,0,0,0.8), 0 30px 80px rgba(0,0,0,0.8), inset 0 1px 0 rgba(201,168,76,0.08); }
+50% { box-shadow: 0 0 0 1px rgba(0,0,0,0.8), 0 30px 80px rgba(0,0,0,0.8), inset 0 1px 0 rgba(201,168,76,0.08), 0 0 60px rgba(201,168,76,0.07); }
+}
+.wrap.running { animation: ambient 3s ease-in-out infinite; }
+
+@keyframes danger-pulse {
+0%,100% { text-shadow: 0 0 16px rgba(201,92,76,0.3); }
+50% { text-shadow: 0 0 32px rgba(201,92,76,0.7); }
+}
+.digit-val.danger { color: var(–red) !important; animation: danger-pulse 1s ease-in-out infinite; }
+
+.section { display: none; }
+.section.visible { display: block; }
+
+/* toast */
+.toast {
+position: fixed; bottom: 20px; left: 50%;
+transform: translateX(-50%);
+background: var(–card);
+border: 1px solid var(–gold-border);
+border-radius: 3px;
+padding: 8px 18px;
+font-size: 10px; letter-spacing: 0.2em;
+color: var(–gold); opacity: 0;
+transition: opacity 0.3s; pointer-events: none; white-space: nowrap;
+}
+.toast.show { opacity: 1; }
+</style>
+
+</head>
+<body>
+<div class="wrap" id="wrap">
+  <div class="corner-br"></div>
+
+  <!-- HEADER -->
+
+  <div class="header">
+    <div class="quote">아무것도 하지 않으면<br>아무것도 달라지지 않는다</div>
+    <div style="display:flex; flex-direction:column; align-items:flex-end; gap:8px; flex-shrink:0;">
+      <button class="btn-main" id="t-btn" onclick="toggleTimer()">Start</button>
+      <button class="btn-reset" onclick="resetTimer()">reset</button>
+    </div>
+  </div>
+  <div class="hdivider"></div>
+
+  <!-- ══ TIMER ══ -->
+
+  <div id="timer-section">
+
+```
+<!-- setter view -->
+<div id="t-setter">
+  <div class="setter-row">
+    <div class="s-group">
+      <button class="s-arrow" onclick="adj('h',1)">▲</button>
+      <div class="s-num" id="s-h">00</div>
+      <button class="s-arrow" onclick="adj('h',-1)">▼</button>
+    </div>
+    <div class="s-sep">:</div>
+    <div class="s-group">
+      <button class="s-arrow" onclick="adj('m',1)">▲</button>
+      <div class="s-num" id="s-m">10</div>
+      <button class="s-arrow" onclick="adj('m',-1)">▼</button>
+    </div>
+    <div class="s-sep">:</div>
+    <div class="s-group">
+      <button class="s-arrow" onclick="adj('s',1)">▲</button>
+      <div class="s-num" id="s-s">00</div>
+      <button class="s-arrow" onclick="adj('s',-1)">▼</button>
+    </div>
+  </div>
+  <div class="s-labels">
+    <div class="s-lbl">hr</div>
+    <div style="width:22px"></div>
+    <div class="s-lbl">min</div>
+    <div style="width:22px"></div>
+    <div class="s-lbl">sec</div>
+  </div>
+</div>
+
+<!-- running view -->
+<div id="t-run" style="display:none;">
+  <div class="display-row" id="t-display-row">
+    <div class="digit-group">
+      <div class="digit-block"><div class="top"></div><div class="bot"></div><span class="digit-val" id="td0">0</span></div>
+      <div class="digit-block"><div class="top"></div><div class="bot"></div><span class="digit-val" id="td1">0</span></div>
+    </div>
+    <div class="colon" id="t-colon1"><div class="colon-dot"></div><div class="colon-dot"></div></div>
+    <div class="digit-group">
+      <div class="digit-block"><div class="top"></div><div class="bot"></div><span class="digit-val" id="td2">1</span></div>
+      <div class="digit-block"><div class="top"></div><div class="bot"></div><span class="digit-val" id="td3">0</span></div>
+    </div>
+    <div class="colon" id="t-colon2"><div class="colon-dot"></div><div class="colon-dot"></div></div>
+    <div class="digit-group">
+      <div class="digit-block"><div class="top"></div><div class="bot"></div><span class="digit-val" id="td4">0</span></div>
+      <div class="digit-block"><div class="top"></div><div class="bot"></div><span class="digit-val" id="td5">0</span></div>
+    </div>
+  </div>
+  <div class="display-footer">
+    <span class="d-label">Timer</span>
+    <span class="d-right" id="t-pct">100%</span>
+  </div>
+</div>
+```
+
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+function setBtnText(txt){
+  const b1=document.getElementById('t-btn');
+  if(b1)b1.textContent=txt;
+}
+function setBtnRunning(on){
+  const b=document.getElementById('t-btn');
+  if(b)b.classList.toggle('running',on);
+}
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2400);
+}
+
+// colon blink helper
+function startBlink(...ids){ return setInterval(()=>ids.forEach(id=>document.getElementById(id).classList.toggle('dim')),500); }
+function stopBlink(interval,...ids){ clearInterval(interval); ids.forEach(id=>document.getElementById(id).classList.remove('dim')); }
+
+// ── TIMER ─────────────────────────────────────────────
+let tH=0,tM=10,tS=0,tLeft=0,tTotal=0,tRun=false,tInt=null,tBlink=null;
+
+function adj(u,d){
+  if(tRun)return;
+  if(u==='h')tH=Math.max(0,Math.min(23,tH+d));
+  if(u==='m')tM=Math.max(0,Math.min(59,tM+d));
+  if(u==='s')tS=Math.max(0,Math.min(59,tS+d));
+  document.getElementById('s-h').textContent=f2(tH);
+  document.getElementById('s-m').textContent=f2(tM);
+  document.getElementById('s-s').textContent=f2(tS);
+}
+
+function toggleTimer(){tRun?pauseTimer():startTimerRun();}
+
+function startTimerRun(){
+  if(!tLeft){
+    tTotal=tH*3600+tM*60+tS; if(!tTotal)return;
+    tLeft=tTotal;
+    document.getElementById('t-setter').style.display='none';
+    document.getElementById('t-run').style.display='block';
+    renderTimer();
+  }
+  tRun=true;
+  setBtnText('Pause'); setBtnRunning(true);
+  document.getElementById('wrap').classList.add('running');
+  tBlink=startBlink('t-colon1','t-colon2');
+  tInt=setInterval(()=>{if(tLeft<=0){doneTimer();return;}tLeft--;renderTimer();},1000);
+}
+
+function pauseTimer(){
+  tRun=false; clearInterval(tInt); stopBlink(tBlink,'t-colon1','t-colon2');
+  setBtnText('Resume'); setBtnRunning(false);
+  document.getElementById('wrap').classList.remove('running');
+}
+
+function doneTimer(){
+  pauseTimer(); tLeft=0; renderTimer();
+  toast('⏰  Time\'s up');
+  setTimeout(resetTimer,2600);
+}
+
+function resetTimer(){
+  pauseTimer(); tLeft=0;
+  document.getElementById('t-setter').style.display='block';
+  document.getElementById('t-run').style.display='none';
+  setBtnText('Start'); setBtnRunning(false);
+  ['td0','td1','td2','td3','td4','td5'].forEach(id=>document.getElementById(id).classList.remove('danger'));
+}
+
+function renderTimer(){
+  const h=Math.floor(tLeft/3600),m=Math.floor((tLeft%3600)/60),s=tLeft%60;
+  const hh=f2(h),mm=f2(m),ss=f2(s);
+  document.getElementById('td0').textContent=hh[0];
+  document.getElementById('td1').textContent=hh[1];
+  document.getElementById('td2').textContent=mm[0];
+  document.getElementById('td3').textContent=mm[1];
+  document.getElementById('td4').textContent=ss[0];
+  document.getElementById('td5').textContent=ss[1];
+  const danger=tLeft<=10&&tLeft>0;
+  ['td0','td1','td2','td3','td4','td5'].forEach(id=>document.getElementById(id).classList.toggle('danger',danger));
+  const pct=tTotal?Math.round((tLeft/tTotal)*100):0;
+  document.getElementById('t-pct').textContent=pct+'%';
+  // hide hour digits if not needed
+  const showH=tLeft>=3600||tH>0;
+  document.getElementById('t-colon1').style.display=showH?'flex':'none';
+  document.querySelector('#t-display-row .digit-group:first-child').style.display=showH?'flex':'none';
+}
+
+
+</script>
+
+</body>
+</html>
