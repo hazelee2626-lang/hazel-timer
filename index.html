@@ -11,8 +11,8 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 html, body {
-  min-height: 100vh;
-  background: transparent !important;
+min-height: 100vh;
+background: transparent !important;
 display: flex;
 align-items: center;
 justify-content: center;
@@ -112,6 +112,32 @@ background: linear-gradient(90deg, transparent, rgba(212,168,67,0.4), transparen
 margin-bottom: 14px;
 }
 
+/* TABS */
+.tabs {
+display: flex;
+justify-content: center;
+gap: 20px;
+margin-bottom: 16px;
+}
+.tab {
+background: none;
+border: none;
+font-family: ‘DM Mono’, monospace;
+font-size: 9px;
+letter-spacing: 0.18em;
+text-transform: uppercase;
+color: rgba(255,248,231,0.3);
+cursor: pointer;
+padding-bottom: 3px;
+border-bottom: 1px solid transparent;
+transition: all 0.2s;
+}
+.tab.active { color: #d4a843; border-bottom-color: #d4a843; }
+
+/* SECTION */
+.section { display: none; }
+.section.visible { display: block; }
+
 /* SETTER */
 .setter { padding: 10px 0 4px; }
 
@@ -178,6 +204,78 @@ text-transform: uppercase;
 color: rgba(255,248,231,0.22);
 min-width: 56px;
 text-align: center;
+}
+
+/* UNTIL - TIME PICKER */
+.until-wrap {
+padding: 8px 0 4px;
+text-align: center;
+}
+
+.until-row {
+display: flex;
+align-items: center;
+justify-content: center;
+gap: 4px;
+margin-bottom: 8px;
+}
+
+.time-input {
+background: #111000;
+border: 1px solid rgba(212,168,67,0.4);
+border-radius: 4px;
+color: #f0c84a;
+font-family: ‘Bebas Neue’, sans-serif;
+font-size: 34px;
+text-align: center;
+width: 62px;
+padding: 4px 0;
+outline: none;
+text-shadow: 0 0 20px rgba(212,168,67,0.4);
+-webkit-appearance: none;
+}
+.time-input:focus {
+border-color: #d4a843;
+box-shadow: 0 0 10px rgba(212,168,67,0.15);
+}
+
+.time-sep-big {
+font-family: ‘Bebas Neue’, sans-serif;
+font-size: 28px;
+color: rgba(212,168,67,0.4);
+margin-top: -4px;
+}
+
+.ampm-wrap {
+display: flex;
+flex-direction: column;
+gap: 3px;
+}
+
+.ampm-btn {
+background: transparent;
+border: 1px solid rgba(212,168,67,0.3);
+border-radius: 3px;
+color: rgba(255,248,231,0.3);
+font-family: ‘DM Mono’, monospace;
+font-size: 8px;
+letter-spacing: 0.1em;
+cursor: pointer;
+padding: 3px 7px;
+transition: all 0.2s;
+}
+.ampm-btn.active {
+background: rgba(212,168,67,0.15);
+color: #f0c84a;
+border-color: #d4a843;
+}
+
+.until-status {
+font-size: 9px;
+letter-spacing: 0.15em;
+color: rgba(255,248,231,0.3);
+margin-bottom: 16px;
+min-height: 14px;
 }
 
 /* DISPLAY ROW */
@@ -288,7 +386,6 @@ letter-spacing: 0.1em;
 color: rgba(255,248,231,0.3);
 }
 
-/* ANIMATIONS */
 @keyframes ambient {
 0%,100% { box-shadow: 0 0 0 1px rgba(0,0,0,0.8), 0 30px 80px rgba(0,0,0,0.8); }
 50% { box-shadow: 0 0 0 1px rgba(0,0,0,0.8), 0 30px 80px rgba(0,0,0,0.8), 0 0 60px rgba(212,168,67,0.08); }
@@ -300,7 +397,6 @@ color: rgba(255,248,231,0.3);
 50% { text-shadow: 0 0 32px rgba(201,92,76,0.8); }
 }
 
-/* TOAST */
 .toast {
 position: fixed;
 bottom: 20px; left: 50%;
@@ -316,6 +412,7 @@ opacity: 0;
 transition: opacity 0.3s;
 pointer-events: none;
 white-space: nowrap;
+z-index: 999;
 }
 .toast.show { opacity: 1; }
 </style>
@@ -325,76 +422,122 @@ white-space: nowrap;
 <div class="wrap" id="wrap">
   <div class="corner-br"></div>
 
+  <!-- HEADER -->
+
   <div class="header">
     <div class="quote">아무것도 하지 않으면<br>아무것도 달라지지 않는다</div>
     <div style="display:flex; flex-direction:column; align-items:flex-end; gap:6px; flex-shrink:0;">
-      <button class="btn-main" id="t-btn" onclick="toggleTimer()">Start</button>
-      <button class="btn-reset" onclick="resetTimer()">reset</button>
+      <button class="btn-main" id="active-btn" onclick="toggleActive()">Start</button>
+      <button class="btn-reset" onclick="resetActive()">reset</button>
     </div>
   </div>
   <div class="hdivider"></div>
 
-  <!-- SETTER -->
+  <!-- TABS -->
 
-  <div id="t-setter" class="setter">
-    <div class="setter-row">
-      <div class="s-group">
-        <button class="s-arrow" onclick="adj('h',1)">▲</button>
-        <div class="s-num" id="s-h">00</div>
-        <button class="s-arrow" onclick="adj('h',-1)">▼</button>
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('until')">Until</button>
+    <button class="tab" onclick="switchTab('timer')">Timer</button>
+  </div>
+
+  <!-- ══ UNTIL TAB ══ -->
+
+  <div class="section visible" id="until-section">
+    <div class="until-wrap">
+      <div class="until-row">
+        <input class="time-input" type="number" id="u-h" min="1" max="12" value="6" oninput="clampInput(this,1,12)">
+        <div class="time-sep-big">:</div>
+        <input class="time-input" type="number" id="u-m" min="0" max="59" value="00" oninput="clampInput(this,0,59)">
+        <div class="ampm-wrap">
+          <button class="ampm-btn" id="am-btn" onclick="setAmPm('AM')">AM</button>
+          <button class="ampm-btn active" id="pm-btn" onclick="setAmPm('PM')">PM</button>
+        </div>
       </div>
-      <div class="s-sep">:</div>
-      <div class="s-group">
-        <button class="s-arrow" onclick="adj('m',1)">▲</button>
-        <div class="s-num" id="s-m">10</div>
-        <button class="s-arrow" onclick="adj('m',-1)">▼</button>
-      </div>
-      <div class="s-sep">:</div>
-      <div class="s-group">
-        <button class="s-arrow" onclick="adj('s',1)">▲</button>
-        <div class="s-num" id="s-s">00</div>
-        <button class="s-arrow" onclick="adj('s',-1)">▼</button>
-      </div>
+      <div class="until-status" id="u-status">—</div>
     </div>
-    <div class="s-labels">
-      <div class="s-lbl">hr</div>
-      <div style="width:18px"></div>
-      <div class="s-lbl">min</div>
-      <div style="width:18px"></div>
-      <div class="s-lbl">sec</div>
+    <div id="u-run" style="display:none;">
+      <div class="display-row">
+        <div class="digit-group">
+          <div class="digit-block"><div class="top"></div><div class="bot"></div><span class="digit-val" id="ud0">0</span></div>
+          <div class="digit-block"><div class="top"></div><div class="bot"></div><span class="digit-val" id="ud1">0</span></div>
+        </div>
+        <div class="colon" id="u-colon1"><div class="colon-dot"></div><div class="colon-dot"></div></div>
+        <div class="digit-group">
+          <div class="digit-block"><div class="top"></div><div class="bot"></div><span class="digit-val" id="ud2">0</span></div>
+          <div class="digit-block"><div class="top"></div><div class="bot"></div><span class="digit-val" id="ud3">0</span></div>
+        </div>
+        <div class="colon" id="u-colon2"><div class="colon-dot"></div><div class="colon-dot"></div></div>
+        <div class="digit-group">
+          <div class="digit-block"><div class="top"></div><div class="bot"></div><span class="digit-val" id="ud4">0</span></div>
+          <div class="digit-block"><div class="top"></div><div class="bot"></div><span class="digit-val" id="ud5">0</span></div>
+        </div>
+      </div>
+      <div class="display-footer">
+        <span class="d-label" id="u-footer-label">Until</span>
+        <span class="d-right" id="u-pct">100%</span>
+      </div>
     </div>
   </div>
 
-  <!-- RUNNING -->
+  <!-- ══ TIMER TAB ══ -->
 
-  <div id="t-run" style="display:none;">
-    <div class="display-row" id="t-display-row">
-      <div class="digit-group" id="hr-group">
-        <div class="digit-block"><div class="top"></div><div class="bot"></div><span class="digit-val" id="td0">0</span></div>
-        <div class="digit-block"><div class="top"></div><div class="bot"></div><span class="digit-val" id="td1">0</span></div>
+  <div class="section" id="timer-section">
+    <div id="t-setter" class="setter">
+      <div class="setter-row">
+        <div class="s-group">
+          <button class="s-arrow" onclick="adj('h',1)">▲</button>
+          <div class="s-num" id="s-h">00</div>
+          <button class="s-arrow" onclick="adj('h',-1)">▼</button>
+        </div>
+        <div class="s-sep">:</div>
+        <div class="s-group">
+          <button class="s-arrow" onclick="adj('m',1)">▲</button>
+          <div class="s-num" id="s-m">10</div>
+          <button class="s-arrow" onclick="adj('m',-1)">▼</button>
+        </div>
+        <div class="s-sep">:</div>
+        <div class="s-group">
+          <button class="s-arrow" onclick="adj('s',1)">▲</button>
+          <div class="s-num" id="s-s">00</div>
+          <button class="s-arrow" onclick="adj('s',-1)">▼</button>
+        </div>
       </div>
-      <div class="colon" id="t-colon1"><div class="colon-dot"></div><div class="colon-dot"></div></div>
-      <div class="digit-group">
-        <div class="digit-block"><div class="top"></div><div class="bot"></div><span class="digit-val" id="td2">1</span></div>
-        <div class="digit-block"><div class="top"></div><div class="bot"></div><span class="digit-val" id="td3">0</span></div>
-      </div>
-      <div class="colon" id="t-colon2"><div class="colon-dot"></div><div class="colon-dot"></div></div>
-      <div class="digit-group">
-        <div class="digit-block"><div class="top"></div><div class="bot"></div><span class="digit-val" id="td4">0</span></div>
-        <div class="digit-block"><div class="top"></div><div class="bot"></div><span class="digit-val" id="td5">0</span></div>
+      <div class="s-labels">
+        <div class="s-lbl">hr</div>
+        <div style="width:18px"></div>
+        <div class="s-lbl">min</div>
+        <div style="width:18px"></div>
+        <div class="s-lbl">sec</div>
       </div>
     </div>
-    <div class="display-footer">
-      <span class="d-label">Timer</span>
-      <span class="d-right" id="t-pct">100%</span>
+    <div id="t-run" style="display:none;">
+      <div class="display-row">
+        <div class="digit-group" id="hr-group">
+          <div class="digit-block"><div class="top"></div><div class="bot"></div><span class="digit-val" id="td0">0</span></div>
+          <div class="digit-block"><div class="top"></div><div class="bot"></div><span class="digit-val" id="td1">0</span></div>
+        </div>
+        <div class="colon" id="t-colon1"><div class="colon-dot"></div><div class="colon-dot"></div></div>
+        <div class="digit-group">
+          <div class="digit-block"><div class="top"></div><div class="bot"></div><span class="digit-val" id="td2">1</span></div>
+          <div class="digit-block"><div class="top"></div><div class="bot"></div><span class="digit-val" id="td3">0</span></div>
+        </div>
+        <div class="colon" id="t-colon2"><div class="colon-dot"></div><div class="colon-dot"></div></div>
+        <div class="digit-group">
+          <div class="digit-block"><div class="top"></div><div class="bot"></div><span class="digit-val" id="td4">0</span></div>
+          <div class="digit-block"><div class="top"></div><div class="bot"></div><span class="digit-val" id="td5">0</span></div>
+        </div>
+      </div>
+      <div class="display-footer">
+        <span class="d-label">Timer</span>
+        <span class="d-right" id="t-pct">100%</span>
+      </div>
     </div>
   </div>
-</div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-function f2(n){ return String(Math.floor(n)).padStart(2,'0'); }
+function f2(n){ return String(Math.floor(Math.abs(n))).padStart(2,'0'); }
 
 function toast(msg){
   var t = document.getElementById('toast');
@@ -403,18 +546,51 @@ function toast(msg){
   setTimeout(function(){ t.classList.remove('show'); }, 2400);
 }
 
-function startBlink(){
+function startBlink(id1, id2){
   return setInterval(function(){
-    document.getElementById('t-colon1').classList.toggle('dim');
-    document.getElementById('t-colon2').classList.toggle('dim');
+    document.getElementById(id1).classList.toggle('dim');
+    document.getElementById(id2).classList.toggle('dim');
   }, 500);
 }
-function stopBlink(iv){
+function stopBlink(iv, id1, id2){
   clearInterval(iv);
-  document.getElementById('t-colon1').classList.remove('dim');
-  document.getElementById('t-colon2').classList.remove('dim');
+  document.getElementById(id1).classList.remove('dim');
+  document.getElementById(id2).classList.remove('dim');
 }
 
+// ── TAB SWITCH ──────────────────────────────
+var currentTab = 'until';
+
+function switchTab(tab){
+  if(tRun) pauseTimer();
+  if(uRun) pauseUntil();
+  currentTab = tab;
+  document.querySelectorAll('.tab').forEach(function(t,i){
+    t.classList.toggle('active', (i===0&&tab==='until')||(i===1&&tab==='timer'));
+  });
+  document.getElementById('timer-section').classList.toggle('visible', tab==='timer');
+  document.getElementById('until-section').classList.toggle('visible', tab==='until');
+  updateHeaderBtn();
+}
+
+function toggleActive(){
+  if(currentTab==='timer') toggleTimer();
+  else toggleUntil();
+}
+
+function resetActive(){
+  if(currentTab==='timer') resetTimer();
+  else resetUntil();
+}
+
+function updateHeaderBtn(){
+  var btn = document.getElementById('active-btn');
+  var running = currentTab==='timer' ? tRun : uRun;
+  btn.textContent = running ? 'Pause' : (currentTab==='timer' && tLeft>0 ? 'Resume' : (currentTab==='until' && uLeft>0 ? 'Resume' : 'Start'));
+  btn.classList.toggle('running', running);
+}
+
+// ── TIMER ────────────────────────────────────
 var tH=0, tM=10, tS=0, tLeft=0, tTotal=0, tRun=false, tInt=null, tBlink=null;
 
 function adj(u, d){
@@ -439,67 +615,157 @@ function startTimer(){
     renderTimer();
   }
   tRun = true;
-  document.getElementById('t-btn').textContent = 'Pause';
-  document.getElementById('t-btn').classList.add('running');
   document.getElementById('wrap').classList.add('running');
-  tBlink = startBlink();
+  tBlink = startBlink('t-colon1','t-colon2');
   tInt = setInterval(function(){
     if(tLeft <= 0){ doneTimer(); return; }
-    tLeft--;
-    renderTimer();
+    tLeft--; renderTimer();
   }, 1000);
+  updateHeaderBtn();
 }
 
 function pauseTimer(){
-  tRun = false;
-  clearInterval(tInt);
-  stopBlink(tBlink);
-  document.getElementById('t-btn').textContent = 'Resume';
-  document.getElementById('t-btn').classList.remove('running');
+  tRun = false; clearInterval(tInt); stopBlink(tBlink,'t-colon1','t-colon2');
   document.getElementById('wrap').classList.remove('running');
+  updateHeaderBtn();
 }
 
 function doneTimer(){
-  pauseTimer();
-  tLeft = 0;
-  renderTimer();
+  pauseTimer(); tLeft = 0; renderTimer();
   toast('⏰  Time\'s up');
   setTimeout(resetTimer, 2600);
 }
 
 function resetTimer(){
-  tRun = false;
-  clearInterval(tInt);
-  if(tBlink) stopBlink(tBlink);
+  tRun = false; clearInterval(tInt);
+  if(tBlink) stopBlink(tBlink,'t-colon1','t-colon2');
   tLeft = 0;
   document.getElementById('t-setter').style.display = 'block';
   document.getElementById('t-run').style.display = 'none';
-  document.getElementById('t-btn').textContent = 'Start';
-  document.getElementById('t-btn').classList.remove('running');
   document.getElementById('wrap').classList.remove('running');
+  updateHeaderBtn();
 }
 
 function renderTimer(){
-  var h = Math.floor(tLeft/3600);
-  var m = Math.floor((tLeft%3600)/60);
-  var s = tLeft%60;
-  var hh = f2(h), mm = f2(m), ss = f2(s);
-  document.getElementById('td0').textContent = hh[0];
-  document.getElementById('td1').textContent = hh[1];
-  document.getElementById('td2').textContent = mm[0];
-  document.getElementById('td3').textContent = mm[1];
-  document.getElementById('td4').textContent = ss[0];
-  document.getElementById('td5').textContent = ss[1];
-  var danger = tLeft <= 10 && tLeft > 0;
+  var h=Math.floor(tLeft/3600), m=Math.floor((tLeft%3600)/60), s=tLeft%60;
+  var hh=f2(h), mm=f2(m), ss=f2(s);
+  document.getElementById('td0').textContent=hh[0];
+  document.getElementById('td1').textContent=hh[1];
+  document.getElementById('td2').textContent=mm[0];
+  document.getElementById('td3').textContent=mm[1];
+  document.getElementById('td4').textContent=ss[0];
+  document.getElementById('td5').textContent=ss[1];
+  var danger = tLeft<=10 && tLeft>0;
   ['td0','td1','td2','td3','td4','td5'].forEach(function(id){
     document.getElementById(id).classList.toggle('danger', danger);
   });
   var pct = tTotal ? Math.round((tLeft/tTotal)*100) : 0;
-  document.getElementById('t-pct').textContent = pct + '%';
-  var showH = tLeft >= 3600 || tH > 0;
-  document.getElementById('hr-group').style.display = showH ? 'flex' : 'none';
-  document.getElementById('t-colon1').style.display = showH ? 'flex' : 'none';
+  document.getElementById('t-pct').textContent = pct+'%';
+  var showH = tLeft>=3600||tH>0;
+  document.getElementById('hr-group').style.display = showH?'flex':'none';
+  document.getElementById('t-colon1').style.display = showH?'flex':'none';
 }
+
+// ── UNTIL ────────────────────────────────────
+var ampm = 'PM';
+var uRun = false, uInt = null, uBlink = null, uLeft = 0, uTotal = 0, uTarget = null;
+
+function setAmPm(v){
+  ampm = v;
+  document.getElementById('am-btn').classList.toggle('active', v==='AM');
+  document.getElementById('pm-btn').classList.toggle('active', v==='PM');
+}
+
+function clampInput(el, min, max){
+  var v = parseInt(el.value)||0;
+  if(v < min) el.value = min;
+  if(v > max) el.value = max;
+}
+
+function getTargetTime(){
+  var h = parseInt(document.getElementById('u-h').value)||12;
+  var m = parseInt(document.getElementById('u-m').value)||0;
+  if(ampm==='PM' && h!==12) h += 12;
+  if(ampm==='AM' && h===12) h = 0;
+  var now = new Date();
+  var target = new Date(now.getFullYear(), now.getMonth(), now.getDate(), h, m, 0, 0);
+  if(target <= now) target.setDate(target.getDate()+1);
+  return target;
+}
+
+function toggleUntil(){ uRun ? pauseUntil() : startUntil(); }
+
+function startUntil(){
+  if(!uTarget || !uLeft){
+    uTarget = getTargetTime();
+    var now = new Date();
+    uTotal = Math.floor((uTarget - now)/1000);
+    uLeft = uTotal;
+    if(uLeft <= 0) return;
+    // show label
+    var h = uTarget.getHours();
+    var m = uTarget.getMinutes();
+    var ap = h>=12?'PM':'AM';
+    var dh = h%12||12;
+    document.getElementById('u-footer-label').textContent = dh+':'+(m<10?'0':'')+m+' '+ap;
+    document.getElementById('u-status').textContent = '';
+    document.getElementById('until-section').querySelector('.until-wrap').style.display='none';
+    document.getElementById('u-run').style.display='block';
+    renderUntil();
+  }
+  uRun = true;
+  document.getElementById('wrap').classList.add('running');
+  uBlink = startBlink('u-colon1','u-colon2');
+  uInt = setInterval(function(){
+    var now = new Date();
+    uLeft = Math.floor((uTarget - now)/1000);
+    if(uLeft <= 0){ doneUntil(); return; }
+    renderUntil();
+  }, 1000);
+  updateHeaderBtn();
+}
+
+function pauseUntil(){
+  uRun = false; clearInterval(uInt); stopBlink(uBlink,'u-colon1','u-colon2');
+  document.getElementById('wrap').classList.remove('running');
+  updateHeaderBtn();
+}
+
+function doneUntil(){
+  pauseUntil(); uLeft=0; renderUntil();
+  toast('⏰  Time\'s up!');
+  setTimeout(resetUntil, 2600);
+}
+
+function resetUntil(){
+  uRun=false; clearInterval(uInt);
+  if(uBlink) stopBlink(uBlink,'u-colon1','u-colon2');
+  uLeft=0; uTarget=null;
+  document.getElementById('until-section').querySelector('.until-wrap').style.display='block';
+  document.getElementById('u-run').style.display='none';
+  document.getElementById('u-status').textContent='—';
+  document.getElementById('wrap').classList.remove('running');
+  updateHeaderBtn();
+}
+
+function renderUntil(){
+  var h=Math.floor(uLeft/3600), m=Math.floor((uLeft%3600)/60), s=uLeft%60;
+  var hh=f2(h), mm=f2(m), ss=f2(s);
+  document.getElementById('ud0').textContent=hh[0];
+  document.getElementById('ud1').textContent=hh[1];
+  document.getElementById('ud2').textContent=mm[0];
+  document.getElementById('ud3').textContent=mm[1];
+  document.getElementById('ud4').textContent=ss[0];
+  document.getElementById('ud5').textContent=ss[1];
+  var danger = uLeft<=60 && uLeft>0;
+  ['ud0','ud1','ud2','ud3','ud4','ud5'].forEach(function(id){
+    document.getElementById(id).classList.toggle('danger', danger);
+  });
+  var pct = uTotal ? Math.round((uLeft/uTotal)*100) : 0;
+  document.getElementById('u-pct').textContent = pct+'%';
+}
+
+updateHeaderBtn();
 </script>
 
 </body>
