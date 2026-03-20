@@ -2,9 +2,6 @@
 
 <html lang="ko">
 <head>
-  <meta property="og:image" content="https://i.imgur.com/Tf14Fr0.jpg">
-  <meta property="og:title" content="Hazel Timer">
-  <meta property="og:description" content="아무것도 하지 않으면 아무것도 달라지지 않는다">  
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="color-scheme" content="light">
@@ -24,7 +21,7 @@ font-family: ‘DM Mono’, monospace;
 
 .wrap {
 width: 320px;
-background: #1a1500;
+background: #0c0b09;
 border: 1px solid rgba(212,168,67,0.5);
 border-radius: 6px;
 padding: 20px 20px 24px;
@@ -36,7 +33,7 @@ box-shadow: 0 0 0 1px rgba(0,0,0,0.8), 0 30px 80px rgba(0,0,0,0.8);
 content: ‘’;
 position: absolute;
 top: 0; left: 8%; right: 8%; height: 1px;
-background: linear-gradient(90deg, transparent, #f0c84a, transparent);
+background: linear-gradient(90deg, transparent, #e8c96a, transparent);
 opacity: 0.9;
 }
 
@@ -90,7 +87,7 @@ border-bottom: 1px solid transparent;
 transition: all 0.2s;
 display: block;
 }
-.btn-main:hover { color: #f0c84a; border-bottom-color: #f0c84a; }
+.btn-main:hover { color: #e8c96a; border-bottom-color: #e8c96a; }
 .btn-main.running { color: #c95c4c; border-bottom-color: #c95c4c; }
 
 .btn-reset {
@@ -135,7 +132,7 @@ padding-bottom: 3px;
 border-bottom: 1px solid transparent;
 transition: all 0.2s;
 }
-.tab.active { color: #d4a843; border-bottom-color: #d4a843; }
+.tab.active { color: #c9a84c; border-bottom-color: #c9a84c; }
 
 /* SECTION */
 .section { display: none; }
@@ -169,8 +166,8 @@ cursor: pointer;
 transition: all 0.15s;
 }
 .s-arrow:hover {
-color: #f0c84a;
-border-color: #d4a843;
+color: #e8c96a;
+border-color: #c9a84c;
 background: rgba(212,168,67,0.18);
 }
 
@@ -178,7 +175,7 @@ background: rgba(212,168,67,0.18);
 font-family: ‘Bebas Neue’, sans-serif;
 font-size: 38px;
 font-weight: 400;
-color: #f0c84a;
+color: #e8c96a;
 line-height: 1;
 min-width: 56px;
 text-align: center;
@@ -224,10 +221,10 @@ margin-bottom: 8px;
 }
 
 .time-input {
-background: #111000;
+background: #0c0b09;
 border: 1px solid rgba(212,168,67,0.4);
 border-radius: 4px;
-color: #f0c84a;
+color: #e8c96a;
 font-family: ‘Bebas Neue’, sans-serif;
 font-size: 34px;
 text-align: center;
@@ -238,7 +235,7 @@ text-shadow: 0 0 20px rgba(212,168,67,0.4);
 -webkit-appearance: none;
 }
 .time-input:focus {
-border-color: #d4a843;
+border-color: #c9a84c;
 box-shadow: 0 0 10px rgba(212,168,67,0.15);
 }
 
@@ -269,8 +266,8 @@ transition: all 0.2s;
 }
 .ampm-btn.active {
 background: rgba(212,168,67,0.15);
-color: #f0c84a;
-border-color: #d4a843;
+color: #e8c96a;
+border-color: #c9a84c;
 }
 
 .until-status {
@@ -288,7 +285,7 @@ align-items: center;
 justify-content: center;
 gap: 7px;
 padding: 14px 12px 12px;
-background: #111000;
+background: #0c0b09;
 border: 1px solid rgba(212,168,67,0.15);
 border-radius: 6px;
 margin-bottom: 6px;
@@ -303,21 +300,21 @@ width: 42px; height: 56px;
 position: relative;
 border-radius: 4px;
 overflow: hidden;
-background: #181400;
+background: #141210;
 box-shadow: 0 4px 16px rgba(0,0,0,0.6), 0 0 0 1px rgba(212,168,67,0.12);
 }
 
 .digit-block .top {
 position: absolute;
 top: 0; left: 0; right: 0; height: 50%;
-background: #1e1800;
+background: #1a1816;
 border-radius: 4px 4px 0 0;
 }
 
 .digit-block .bot {
 position: absolute;
 bottom: 0; left: 0; right: 0; height: 50%;
-background: #141000;
+background: #0e0d0b;
 border-radius: 0 0 4px 4px;
 }
 
@@ -334,7 +331,7 @@ z-index: 10;
 font-family: ‘Bebas Neue’, sans-serif;
 font-size: 34px;
 font-weight: 400;
-color: #f0c84a;
+color: #e8c96a;
 line-height: 1;
 text-shadow: 0 0 20px rgba(212,168,67,0.6);
 position: absolute;
@@ -360,7 +357,7 @@ padding-bottom: 2px;
 .colon-dot {
 width: 4px; height: 4px;
 border-radius: 50%;
-background: #d4a843;
+background: #c9a84c;
 box-shadow: 0 0 6px rgba(212,168,67,0.7);
 transition: opacity 0.5s;
 }
@@ -379,7 +376,7 @@ margin-bottom: 0;
 font-size: 8px;
 letter-spacing: 0.22em;
 text-transform: uppercase;
-color: #d4a843;
+color: #c9a84c;
 opacity: 0.6;
 }
 
@@ -404,13 +401,13 @@ color: rgba(255,248,231,0.3);
 position: fixed;
 bottom: 20px; left: 50%;
 transform: translateX(-50%);
-background: #1a1500;
+background: #0c0b09;
 border: 1px solid rgba(212,168,67,0.5);
 border-radius: 3px;
 padding: 8px 18px;
 font-size: 10px;
 letter-spacing: 0.2em;
-color: #d4a843;
+color: #c9a84c;
 opacity: 0;
 transition: opacity 0.3s;
 pointer-events: none;
@@ -565,8 +562,6 @@ function stopBlink(iv, id1, id2){
 var currentTab = 'until';
 
 function switchTab(tab){
-  if(tRun) pauseTimer();
-  if(uRun) pauseUntil();
   currentTab = tab;
   document.querySelectorAll('.tab').forEach(function(t,i){
     t.classList.toggle('active', (i===0&&tab==='until')||(i===1&&tab==='timer'));
