@@ -157,10 +157,10 @@ gap: 4px;
 
 .s-arrow {
 background: transparent;
-border: 1px solid rgba(212,168,67,0.5);
+border: 1px solid rgba(212,168,67,0.4);
 border-radius: 3px;
-color: rgba(255,248,231,0.5);
-width: 42px; height: 20px;
+color: rgba(255,248,231,0.4);
+width: 62px; height: 18px;
 font-size: 9px;
 cursor: pointer;
 transition: all 0.15s;
@@ -168,18 +168,7 @@ transition: all 0.15s;
 .s-arrow:hover {
 color: #e8c96a;
 border-color: #c9a84c;
-background: rgba(212,168,67,0.18);
-}
-
-.s-num {
-font-family: ‘Bebas Neue’, sans-serif;
-font-size: 38px;
-font-weight: 400;
-color: #e8c96a;
-line-height: 1;
-min-width: 56px;
-text-align: center;
-text-shadow: 0 0 20px rgba(212,168,67,0.5);
+background: rgba(212,168,67,0.12);
 }
 
 .s-sep {
@@ -347,6 +336,33 @@ color: #c95c4c !important;
 animation: danger-pulse 1s ease-in-out infinite;
 }
 
+/* paused state */
+.display-row.paused .digit-val {
+color: rgba(201,168,76,0.25) !important;
+text-shadow: none !important;
+}
+.display-row.paused .colon-dot {
+opacity: 0.15;
+}
+.pause-overlay {
+display: none;
+position: absolute;
+inset: 0;
+align-items: center;
+justify-content: center;
+pointer-events: none;
+}
+.display-row.paused .pause-overlay {
+display: flex;
+}
+.pause-text {
+font-family: ‘Bebas Neue’, sans-serif;
+font-size: 20px;
+font-weight: 400;
+letter-spacing: 0.15em;
+color: rgba(255,255,255,0.55);
+}
+
 .colon {
 display: flex;
 flex-direction: column;
@@ -441,10 +457,6 @@ position: absolute;
 top: 0; left: 0;
 }
 
-.hg-info { display: none; }
-.hg-time { display: none; }
-.hg-pct  { display: none; }
-
 position: fixed;
 bottom: 20px; left: 50%;
 transform: translateX(-50%);
@@ -492,9 +504,17 @@ z-index: 999;
   <div class="section visible" id="until-section">
     <div class="until-wrap">
       <div class="until-row">
-        <input class="time-input" type="number" id="u-h" min="1" max="12" value="6" oninput="clampInput(this,1,12)">
+        <div class="s-group">
+          <button class="s-arrow" onclick="adjInput('u-h',1,1,12,true)">▲</button>
+          <input class="time-input" type="number" id="u-h" min="1" max="12" value="6" oninput="clampInput(this,1,12)">
+          <button class="s-arrow" onclick="adjInput('u-h',-1,1,12,true)">▼</button>
+        </div>
         <div class="time-sep-big">:</div>
-        <input class="time-input" type="number" id="u-m" min="0" max="59" value="00" oninput="clampInput(this,0,59)">
+        <div class="s-group">
+          <button class="s-arrow" onclick="adjInput('u-m',1,0,59,true)">▲</button>
+          <input class="time-input" type="number" id="u-m" min="0" max="59" value="00" oninput="clampInput(this,0,59)">
+          <button class="s-arrow" onclick="adjInput('u-m',-1,0,59,true)">▼</button>
+        </div>
         <div class="ampm-wrap">
           <button class="ampm-btn" id="am-btn" onclick="setAmPm('AM')">AM</button>
           <button class="ampm-btn active" id="pm-btn" onclick="setAmPm('PM')">PM</button>
@@ -503,25 +523,41 @@ z-index: 999;
       <div class="until-status" id="u-status">—</div>
     </div>
     <div id="u-run" style="display:none;">
-      <div class="display-row">
-        <div class="digit-group">
-          <div class="digit-block"><div class="top"></div><div class="bot"></div><span class="digit-val" id="ud0">0</span></div>
-          <div class="digit-block"><div class="top"></div><div class="bot"></div><span class="digit-val" id="ud1">0</span></div>
+      <!-- digit view -->
+      <div id="u-digit-view" style="opacity:1; transition: opacity 0.6s;">
+        <div class="display-row" id="u-display-row">
+          <div class="digit-group">
+            <div class="digit-block"><div class="top"></div><div class="bot"></div><span class="digit-val" id="ud0">0</span></div>
+            <div class="digit-block"><div class="top"></div><div class="bot"></div><span class="digit-val" id="ud1">0</span></div>
+          </div>
+          <div class="colon" id="u-colon1"><div class="colon-dot"></div><div class="colon-dot"></div></div>
+          <div class="digit-group">
+            <div class="digit-block"><div class="top"></div><div class="bot"></div><span class="digit-val" id="ud2">0</span></div>
+            <div class="digit-block"><div class="top"></div><div class="bot"></div><span class="digit-val" id="ud3">0</span></div>
+          </div>
+          <div class="colon" id="u-colon2"><div class="colon-dot"></div><div class="colon-dot"></div></div>
+          <div class="digit-group">
+            <div class="digit-block"><div class="top"></div><div class="bot"></div><span class="digit-val" id="ud4">0</span></div>
+            <div class="digit-block"><div class="top"></div><div class="bot"></div><span class="digit-val" id="ud5">0</span></div>
+          </div>
+          <div class="pause-overlay"><span class="pause-text">PAUSE</span></div>
         </div>
-        <div class="colon" id="u-colon1"><div class="colon-dot"></div><div class="colon-dot"></div></div>
-        <div class="digit-group">
-          <div class="digit-block"><div class="top"></div><div class="bot"></div><span class="digit-val" id="ud2">0</span></div>
-          <div class="digit-block"><div class="top"></div><div class="bot"></div><span class="digit-val" id="ud3">0</span></div>
-        </div>
-        <div class="colon" id="u-colon2"><div class="colon-dot"></div><div class="colon-dot"></div></div>
-        <div class="digit-group">
-          <div class="digit-block"><div class="top"></div><div class="bot"></div><span class="digit-val" id="ud4">0</span></div>
-          <div class="digit-block"><div class="top"></div><div class="bot"></div><span class="digit-val" id="ud5">0</span></div>
+      </div>
+      <!-- pie view -->
+      <div id="u-hg-view" style="display:none; opacity:0; transition: opacity 0.6s;">
+        <div class="hg-wrap">
+          <div class="hg-canvas-wrap">
+            <canvas id="u-hg-bg" width="96" height="96"></canvas>
+            <canvas id="u-hg-sand" width="96" height="96"></canvas>
+          </div>
         </div>
       </div>
       <div class="display-footer">
         <span class="d-label" id="u-footer-label">Until</span>
-        <span class="d-right" id="u-pct">100%</span>
+        <div style="display:flex; align-items:center; gap:10px;">
+          <span class="d-right" id="u-pct">100%</span>
+          <button class="hg-toggle" id="u-hg-btn" onclick="toggleUntilPie()" title="원형으로 보기">⧗</button>
+        </div>
       </div>
     </div>
   </div>
@@ -532,21 +568,21 @@ z-index: 999;
     <div id="t-setter" class="setter">
       <div class="setter-row">
         <div class="s-group">
-          <button class="s-arrow" onclick="adj('h',1)">▲</button>
-          <div class="s-num" id="s-h">00</div>
-          <button class="s-arrow" onclick="adj('h',-1)">▼</button>
+          <button class="s-arrow" onclick="adjInput('s-h',1,0,23)">▲</button>
+          <input class="time-input" type="number" id="s-h" min="0" max="23" value="0" oninput="clampInput(this,0,23)">
+          <button class="s-arrow" onclick="adjInput('s-h',-1,0,23)">▼</button>
         </div>
         <div class="s-sep">:</div>
         <div class="s-group">
-          <button class="s-arrow" onclick="adj('m',1)">▲</button>
-          <div class="s-num" id="s-m">10</div>
-          <button class="s-arrow" onclick="adj('m',-1)">▼</button>
+          <button class="s-arrow" onclick="adjInput('s-m',1,0,59,true)">▲</button>
+          <input class="time-input" type="number" id="s-m" min="0" max="59" value="10" oninput="clampInput(this,0,59)">
+          <button class="s-arrow" onclick="adjInput('s-m',-1,0,59,true)">▼</button>
         </div>
         <div class="s-sep">:</div>
         <div class="s-group">
-          <button class="s-arrow" onclick="adj('s',1)">▲</button>
-          <div class="s-num" id="s-s">00</div>
-          <button class="s-arrow" onclick="adj('s',-1)">▼</button>
+          <button class="s-arrow" onclick="adjInput('s-s',1,0,59,true)">▲</button>
+          <input class="time-input" type="number" id="s-s" min="0" max="59" value="0" oninput="clampInput(this,0,59)">
+          <button class="s-arrow" onclick="adjInput('s-s',-1,0,59,true)">▼</button>
         </div>
       </div>
       <div class="s-labels">
@@ -560,7 +596,7 @@ z-index: 999;
     <div id="t-run" style="display:none;">
       <!-- digit view -->
       <div id="t-digit-view" style="opacity:1; transition: opacity 0.6s;">
-        <div class="display-row">
+        <div class="display-row" id="t-display-row">
           <div class="digit-group" id="hr-group">
             <div class="digit-block"><div class="top"></div><div class="bot"></div><span class="digit-val" id="td0">0</span></div>
             <div class="digit-block"><div class="top"></div><div class="bot"></div><span class="digit-val" id="td1">0</span></div>
@@ -575,6 +611,7 @@ z-index: 999;
             <div class="digit-block"><div class="top"></div><div class="bot"></div><span class="digit-val" id="td4">0</span></div>
             <div class="digit-block"><div class="top"></div><div class="bot"></div><span class="digit-val" id="td5">0</span></div>
           </div>
+          <div class="pause-overlay"><span class="pause-text">PAUSE</span></div>
         </div>
       </div>
 
@@ -629,8 +666,6 @@ function stopBlink(iv, id1, id2){
 var currentTab = 'until';
 
 function switchTab(tab){
-  if(tRun) pauseTimer();
-  if(uRun) pauseUntil();
   currentTab = tab;
   document.querySelectorAll('.tab').forEach(function(t,i){
     t.classList.toggle('active', (i===0&&tab==='until')||(i===1&&tab==='timer'));
@@ -653,28 +688,33 @@ function resetActive(){
 function updateHeaderBtn(){
   var btn = document.getElementById('active-btn');
   var running = currentTab==='timer' ? tRun : uRun;
-  btn.textContent = running ? 'Pause' : (currentTab==='timer' && tLeft>0 ? 'Resume' : (currentTab==='until' && uLeft>0 ? 'Resume' : 'Start'));
+  var hasLeft = currentTab==='timer' ? tLeft>0 : uLeft>0;
+  var label = running ? 'Pause' : (hasLeft ? 'Resume' : 'Start');
+  btn.textContent = label;
   btn.classList.toggle('running', running);
 }
 
 // ── TIMER ────────────────────────────────────
-var tH=0, tM=10, tS=0, tLeft=0, tTotal=0, tRun=false, tInt=null, tBlink=null;
+var tLeft=0, tTotal=0, tRun=false, tInt=null, tBlink=null;
 
-function adj(u, d){
-  if(tRun) return;
-  if(u==='h') tH = Math.max(0, Math.min(23, tH+d));
-  if(u==='m') tM = Math.max(0, Math.min(59, tM+d));
-  if(u==='s') tS = Math.max(0, Math.min(59, tS+d));
-  document.getElementById('s-h').textContent = f2(tH);
-  document.getElementById('s-m').textContent = f2(tM);
-  document.getElementById('s-s').textContent = f2(tS);
-}
-
-function toggleTimer(){ tRun ? pauseTimer() : startTimer(); }
+function adjInput(id, d, min, max, wrap) {
+  var el = document.getElementById(id);
+  var v = (parseInt(el.value) || 0) + d;
+  if (wrap) {
+    if (v > max) v = min;
+    if (v < min) v = max;
+  } else {
+    v = Math.max(min, Math.min(max, v));
+  }
+  el.value = v;
+}function toggleTimer(){ tRun ? pauseTimer() : startTimer(); }
 
 function startTimer(){
   if(!tLeft){
-    tTotal = tH*3600 + tM*60 + tS;
+    var h = parseInt(document.getElementById('s-h').value)||0;
+    var m = parseInt(document.getElementById('s-m').value)||0;
+    var s = parseInt(document.getElementById('s-s').value)||0;
+    tTotal = h*3600 + m*60 + s;
     if(!tTotal) return;
     tLeft = tTotal;
     document.getElementById('t-setter').style.display = 'none';
@@ -683,6 +723,8 @@ function startTimer(){
   }
   tRun = true;
   document.getElementById('wrap').classList.add('running');
+  var dr = document.getElementById('t-display-row');
+  if(dr) dr.classList.remove('paused');
   tBlink = startBlink('t-colon1','t-colon2');
   tInt = setInterval(function(){
     if(tLeft <= 0){ doneTimer(); return; }
@@ -694,6 +736,9 @@ function startTimer(){
 function pauseTimer(){
   tRun = false; clearInterval(tInt); stopBlink(tBlink,'t-colon1','t-colon2');
   document.getElementById('wrap').classList.remove('running');
+  var dr = document.getElementById('t-display-row');
+  if(dr) dr.classList.add('paused');
+  if(hgMode) { var pct = tTotal>0 ? tLeft/tTotal : 0; drawPieSand(pct); }
   updateHeaderBtn();
 }
 
@@ -742,10 +787,9 @@ function renderTimer(){
   });
   var pct = tTotal ? Math.round((tLeft/tTotal)*100) : 0;
   document.getElementById('t-pct').textContent = pct+'%';
-  var showH = tLeft>=3600||tH>0;
+  var showH = tLeft>=3600;
   document.getElementById('hr-group').style.display = showH?'flex':'none';
   document.getElementById('t-colon1').style.display = showH?'flex':'none';
-  updateHourglass();
 }
 
 // ── UNTIL ────────────────────────────────────
@@ -797,6 +841,8 @@ function startUntil(){
   }
   uRun = true;
   document.getElementById('wrap').classList.add('running');
+  var udr = document.getElementById('u-display-row');
+  if(udr) udr.classList.remove('paused');
   uBlink = startBlink('u-colon1','u-colon2');
   uInt = setInterval(function(){
     var now = new Date();
@@ -810,6 +856,9 @@ function startUntil(){
 function pauseUntil(){
   uRun = false; clearInterval(uInt); stopBlink(uBlink,'u-colon1','u-colon2');
   document.getElementById('wrap').classList.remove('running');
+  var dr = document.getElementById('u-display-row');
+  if(dr) dr.classList.add('paused');
+  if(uHgMode) { var pct = uTotal>0 ? uLeft/uTotal : 0; drawUntilPieSand(pct); }
   updateHeaderBtn();
 }
 
@@ -823,6 +872,12 @@ function resetUntil(){
   uRun=false; clearInterval(uInt);
   if(uBlink) stopBlink(uBlink,'u-colon1','u-colon2');
   uLeft=0; uTarget=null;
+  if(uHgMode){
+    uHgMode=false; cancelAnimationFrame(uHgAnimFrame);
+    var hv=document.getElementById('u-hg-view'); if(hv){hv.style.display='none';hv.style.opacity='0';}
+    var dv=document.getElementById('u-digit-view'); if(dv){dv.style.display='block';dv.style.opacity='1';}
+    var ub=document.getElementById('u-hg-btn'); if(ub) ub.classList.remove('active');
+  }
   document.getElementById('until-section').querySelector('.until-wrap').style.display='block';
   document.getElementById('u-run').style.display='none';
   document.getElementById('u-status').textContent='—';
@@ -849,7 +904,114 @@ function renderUntil(){
 
 updateHeaderBtn();
 
-// ── PIE TOGGLE ──────────────────────────────────────────
+// ── PIE DRAW ──────────────────────────────────────────
+function drawPieFrame() {
+  var c = document.getElementById('hg-bg');
+  if (!c) return;
+  var dpr = window.devicePixelRatio || 2;
+  var size = 96;
+  c.width = size * dpr; c.height = size * dpr;
+  c.style.width = size + 'px'; c.style.height = size + 'px';
+  var ctx = c.getContext('2d');
+  ctx.scale(dpr, dpr);
+  var cx = 48, cy = 48, R = 38;
+  // track ring
+  ctx.beginPath();
+  ctx.arc(cx, cy, R, 0, Math.PI*2);
+  ctx.strokeStyle = 'rgba(201,168,76,0.15)';
+  ctx.lineWidth = 7;
+  ctx.stroke();
+  // clock marks
+  for (var i = 0; i < 12; i++) {
+    var a = (i / 12) * Math.PI * 2 - Math.PI/2;
+    var r1 = R + 6, r2 = R + 9;
+    ctx.beginPath();
+    ctx.moveTo(cx + r1*Math.cos(a), cy + r1*Math.sin(a));
+    ctx.lineTo(cx + r2*Math.cos(a), cy + r2*Math.sin(a));
+    ctx.strokeStyle = 'rgba(201,168,76,' + (i%3===0?'0.5':'0.2') + ')';
+    ctx.lineWidth = i%3===0 ? 1.5 : 0.8;
+    ctx.stroke();
+  }
+}
+
+function drawPieSand(pct) {
+  var c = document.getElementById('hg-sand');
+  if (!c) return;
+  var dpr = window.devicePixelRatio || 2;
+  var size = 96;
+  c.width = size * dpr; c.height = size * dpr;
+  c.style.width = size + 'px'; c.style.height = size + 'px';
+  var ctx = c.getContext('2d');
+  ctx.scale(dpr, dpr);
+  var cx = 48, cy = 48, R = 38;
+  var remain = Math.max(0, Math.min(1, pct));
+  var startA = -Math.PI/2;
+  var endA = startA + Math.PI*2 * remain;
+
+  if (remain > 0.001) {
+    // pie fill
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, R - 4, startA, endA);
+    ctx.closePath();
+    var grd = ctx.createRadialGradient(cx, cy, 0, cx, cy, R);
+    grd.addColorStop(0,   'rgba(255,235,100,0.2)');
+    grd.addColorStop(0.6, 'rgba(210,170,55,0.15)');
+    grd.addColorStop(1,   'rgba(180,135,30,0.08)');
+    ctx.fillStyle = grd;
+    ctx.fill();
+
+    // arc stroke
+    ctx.beginPath();
+    ctx.arc(cx, cy, R, startA, endA);
+    ctx.strokeStyle = remain > 0.15
+      ? 'rgba(220,180,60,0.95)'
+      : 'rgba(201,80,60,0.95)';
+    ctx.lineWidth = 6;
+    ctx.lineCap = 'round';
+    ctx.stroke();
+
+    // glow
+    ctx.beginPath();
+    ctx.arc(cx, cy, R, startA, endA);
+    ctx.strokeStyle = remain > 0.15
+      ? 'rgba(255,215,60,0.18)'
+      : 'rgba(201,80,60,0.18)';
+    ctx.lineWidth = 14;
+    ctx.stroke();
+
+    // leading dot
+    var dotX = cx + R * Math.cos(endA);
+    var dotY = cy + R * Math.sin(endA);
+    ctx.beginPath();
+    ctx.arc(dotX, dotY, 5, 0, Math.PI*2);
+    ctx.fillStyle = remain > 0.15 ? 'rgba(255,235,100,1)' : 'rgba(255,100,80,1)';
+    ctx.fill();
+    // dot glow
+    ctx.beginPath();
+    ctx.arc(dotX, dotY, 9, 0, Math.PI*2);
+    ctx.fillStyle = remain > 0.15 ? 'rgba(255,215,60,0.25)' : 'rgba(255,80,60,0.25)';
+    ctx.fill();
+  }
+
+  // center content
+  var isPaused = !tRun && tLeft > 0;
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+
+  if (isPaused) {
+    ctx.font = '400 20px "Bebas Neue", sans-serif';
+    ctx.fillStyle = 'rgba(255,255,255,0.85)';
+    ctx.fillText('PAUSE', cx, cy);
+  } else {
+    var h=Math.floor(tLeft/3600), m=Math.floor((tLeft%3600)/60), s=tLeft%60;
+    var timeStr = tLeft>=3600 ? f2(h)+':'+f2(m)+':'+f2(s) : f2(m)+':'+f2(s);
+    ctx.font = '700 12px "DM Mono", monospace';
+    ctx.fillStyle = remain > 0.15 ? 'rgba(201,168,76,0.9)' : 'rgba(220,80,60,0.9)';
+    ctx.fillText(timeStr, cx, cy);
+  }
+}
+
+
 var hgMode = false;
 var hgAnimFrame = null;
 
@@ -890,9 +1052,130 @@ function toggleHourglass() {
   }
 }
 
-function updateHourglass() {
-  // called from renderTimer — pie redraws via rAF loop
+// ── UNTIL PIE TOGGLE ──────────────────────────────────
+var uHgMode = false;
+var uHgAnimFrame = null;
+
+function drawUntilPieFrame() {
+  var c = document.getElementById('u-hg-bg');
+  if (!c) return;
+  var dpr = window.devicePixelRatio || 2;
+  var size = 96;
+  c.width = size * dpr; c.height = size * dpr;
+  c.style.width = size + 'px'; c.style.height = size + 'px';
+  var ctx = c.getContext('2d');
+  ctx.scale(dpr, dpr);
+  var cx = 48, cy = 48, R = 38;
+  ctx.beginPath();
+  ctx.arc(cx, cy, R, 0, Math.PI*2);
+  ctx.strokeStyle = 'rgba(201,168,76,0.15)';
+  ctx.lineWidth = 7;
+  ctx.stroke();
+  for (var i = 0; i < 12; i++) {
+    var a = (i/12)*Math.PI*2 - Math.PI/2;
+    var r1 = R+6, r2 = R+9;
+    ctx.beginPath();
+    ctx.moveTo(cx + r1*Math.cos(a), cy + r1*Math.sin(a));
+    ctx.lineTo(cx + r2*Math.cos(a), cy + r2*Math.sin(a));
+    ctx.strokeStyle = 'rgba(201,168,76,' + (i%3===0?'0.5':'0.2') + ')';
+    ctx.lineWidth = i%3===0 ? 1.5 : 0.8;
+    ctx.stroke();
+  }
 }
+
+function drawUntilPieSand(pct) {
+  var c = document.getElementById('u-hg-sand');
+  if (!c) return;
+  var dpr = window.devicePixelRatio || 2;
+  var size = 96;
+  c.width = size * dpr; c.height = size * dpr;
+  c.style.width = size + 'px'; c.style.height = size + 'px';
+  var ctx = c.getContext('2d');
+  ctx.scale(dpr, dpr);
+  var cx = 48, cy = 48, R = 38;
+  var remain = Math.max(0, Math.min(1, pct));
+  var startA = -Math.PI/2;
+  var endA = startA + Math.PI*2 * remain;
+
+  if (remain > 0.001) {
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, R-4, startA, endA);
+    ctx.closePath();
+    var grd = ctx.createRadialGradient(cx, cy, 0, cx, cy, R);
+    grd.addColorStop(0,   'rgba(255,235,100,0.2)');
+    grd.addColorStop(0.6, 'rgba(210,170,55,0.15)');
+    grd.addColorStop(1,   'rgba(180,135,30,0.08)');
+    ctx.fillStyle = grd; ctx.fill();
+
+    ctx.beginPath();
+    ctx.arc(cx, cy, R, startA, endA);
+    ctx.strokeStyle = remain > 0.15 ? 'rgba(220,180,60,0.95)' : 'rgba(201,80,60,0.95)';
+    ctx.lineWidth = 6; ctx.lineCap = 'round'; ctx.stroke();
+
+    ctx.beginPath();
+    ctx.arc(cx, cy, R, startA, endA);
+    ctx.strokeStyle = remain > 0.15 ? 'rgba(255,215,60,0.18)' : 'rgba(201,80,60,0.18)';
+    ctx.lineWidth = 14; ctx.stroke();
+
+    var dotX = cx + R*Math.cos(endA), dotY = cy + R*Math.sin(endA);
+    ctx.beginPath(); ctx.arc(dotX, dotY, 5, 0, Math.PI*2);
+    ctx.fillStyle = remain > 0.15 ? 'rgba(255,235,100,1)' : 'rgba(255,100,80,1)'; ctx.fill();
+    ctx.beginPath(); ctx.arc(dotX, dotY, 9, 0, Math.PI*2);
+    ctx.fillStyle = remain > 0.15 ? 'rgba(255,215,60,0.25)' : 'rgba(255,80,60,0.25)'; ctx.fill();
+  }
+
+  // center content
+  var isPaused = !uRun && uLeft > 0;
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+
+  if (isPaused) {
+    ctx.font = '400 20px "Bebas Neue", sans-serif';
+    ctx.fillStyle = 'rgba(255,255,255,0.85)';
+    ctx.fillText('PAUSE', cx, cy);
+  } else {
+    var h=Math.floor(uLeft/3600), m=Math.floor((uLeft%3600)/60), s=uLeft%60;
+    var timeStr = uLeft>=3600 ? f2(h)+':'+f2(m)+':'+f2(s) : f2(m)+':'+f2(s);
+    ctx.font = '700 12px "DM Mono", monospace';
+    ctx.fillStyle = remain > 0.15 ? 'rgba(201,168,76,0.9)' : 'rgba(220,80,60,0.9)';
+    ctx.fillText(timeStr, cx, cy);
+  }
+}
+
+function uHgLoop() {
+  if (!uHgMode) return;
+  var pct = uTotal > 0 ? uLeft / uTotal : 0;
+  drawUntilPieSand(pct);
+  uHgAnimFrame = requestAnimationFrame(uHgLoop);
+}
+
+function toggleUntilPie() {
+  uHgMode = !uHgMode;
+  var btn = document.getElementById('u-hg-btn');
+  var digitView = document.getElementById('u-digit-view');
+  var hgView = document.getElementById('u-hg-view');
+
+  if (uHgMode) {
+    digitView.style.opacity = '0';
+    setTimeout(function() {
+      digitView.style.display = 'none';
+      hgView.style.display = 'block';
+      drawUntilPieFrame();
+      setTimeout(function() { hgView.style.opacity = '1'; uHgLoop(); }, 20);
+    }, 500);
+    btn.classList.add('active');
+  } else {
+    cancelAnimationFrame(uHgAnimFrame);
+    hgView.style.opacity = '0';
+    setTimeout(function() {
+      hgView.style.display = 'none';
+      digitView.style.display = 'block';
+      setTimeout(function() { digitView.style.opacity = '1'; }, 20);
+    }, 500);
+    btn.classList.remove('active');
+  }
+}
+
 
 </script>
 
