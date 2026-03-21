@@ -3,10 +3,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta property="og:title" content="Hazel Timer">
-<meta property="og:description" content="아무것도 하지 않으면 아무것도 달라지지 않는다">
 <meta property="og:image" content="https://hazelee2626-lang.github.io/hazel-timer/Cover.jpg">
-<meta property="og:url" content="https://hazelee2626-lang.github.io/hazel-timer">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="color-scheme" content="light">
 <title>HAZEL TIMER</title>
@@ -1202,6 +1199,92 @@ function toggleUntilPie() {
   }
 }
 
+
+// ── LOCALSTORAGE PERSISTENCE ──────────────────────────
+function saveState() {
+  try {
+    var s = {
+      tab: currentTab,
+      // timer
+      tLeft: tLeft, tTotal: tTotal, tRun: tRun,
+      tH: parseInt(document.getElementById('s-h').value)||0,
+      tM: parseInt(document.getElementById('s-m').value)||0,
+      tS: parseInt(document.getElementById('s-s').value)||0,
+      tSaved: tRun ? Date.now() : null,
+      // until
+      uLeft: uLeft, uTotal: uTotal, uRun: uRun,
+      uTargetMs: uTarget ? uTarget.getTime() : null,
+      ampm: ampm,
+      uH: document.getElementById('u-h').value,
+      uMin: document.getElementById('u-m').value
+    };
+    localStorage.setItem('hz_timer', JSON.stringify(s));
+  } catch(e) {}
+}
+
+function loadState() {
+  try {
+    var s = JSON.parse(localStorage.getItem('hz_timer'));
+    if (!s) return;
+
+    // restore tab
+    if (s.tab) switchTab(s.tab);
+
+    // restore until inputs
+    if (s.ampm) setAmPm(s.ampm);
+    if (s.uH) document.getElementById('u-h').value = s.uH;
+    if (s.uMin) document.getElementById('u-m').value = s.uMin;
+
+    // restore timer inputs
+    if (s.tH !== undefined) document.getElementById('s-h').value = s.tH;
+    if (s.tM !== undefined) document.getElementById('s-m').value = s.tM;
+    if (s.tS !== undefined) document.getElementById('s-s').value = s.tS;
+
+    // restore timer running state
+    if (s.tTotal > 0 && s.tLeft > 0) {
+      tTotal = s.tTotal;
+      // adjust for elapsed time if was running
+      tLeft = s.tRun && s.tSaved
+        ? Math.max(0, s.tLeft - Math.round((Date.now() - s.tSaved) / 1000))
+        : s.tLeft;
+      if (tLeft > 0) {
+        document.getElementById('t-setter').style.display = 'none';
+        document.getElementById('t-run').style.display = 'block';
+        renderTimer();
+        if (s.tRun) startTimer();
+        else {
+          var dr = document.getElementById('t-display-row');
+          if(dr) dr.classList.add('paused');
+        }
+      }
+    }
+
+    // restore until running state
+    if (s.uTargetMs && s.uTotal > 0) {
+      uTarget = new Date(s.uTargetMs);
+      uTotal = s.uTotal;
+      uLeft = Math.max(0, Math.floor((uTarget - new Date()) / 1000));
+      if (uLeft > 0) {
+        var h = uTarget.getHours(), m = uTarget.getMinutes();
+        var ap = h>=12?'PM':'AM', dh = h%12||12;
+        document.getElementById('u-footer-label').textContent = dh+':'+(m<10?'0':'')+m+' '+ap;
+        document.getElementById('until-section').querySelector('.until-wrap').style.display = 'none';
+        document.getElementById('u-run').style.display = 'block';
+        renderUntil();
+        if (s.uRun) startUntil();
+        else {
+          var udr = document.getElementById('u-display-row');
+          if(udr) udr.classList.add('paused');
+        }
+      }
+    }
+  } catch(e) {}
+}
+
+// save every second
+setInterval(saveState, 1000);
+// load on init
+loadState();
 
 </script>
 
