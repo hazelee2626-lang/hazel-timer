@@ -505,15 +505,15 @@ z-index: 999;
     <div class="until-wrap">
       <div class="until-row">
         <div class="s-group">
-          <button class="s-arrow" onclick="adjInput('u-h',1,1,12,true)">▲</button>
-          <input class="time-input" type="number" id="u-h" min="1" max="12" value="6" oninput="clampInput(this,1,12)">
-          <button class="s-arrow" onclick="adjInput('u-h',-1,1,12,true)">▼</button>
+          <button class="s-arrow" onmousedown="startHold('u-h',1,1,12,true)" ontouchstart="event.preventDefault();startHold('u-h',1,1,12,true)" onmouseup="stopHold()" onmouseleave="stopHold()" ontouchend="stopHold()">▲</button>
+          <input class="time-input" type="number" id="u-h" min="1" max="12" value="10" oninput="clampInput(this,1,12)">
+          <button class="s-arrow" onmousedown="startHold('u-h',-1,1,12,true)" ontouchstart="event.preventDefault();startHold('u-h',-1,1,12,true)" onmouseup="stopHold()" onmouseleave="stopHold()" ontouchend="stopHold()">▼</button>
         </div>
         <div class="time-sep-big">:</div>
         <div class="s-group">
-          <button class="s-arrow" onclick="adjInput('u-m',1,0,59,true)">▲</button>
-          <input class="time-input" type="number" id="u-m" min="0" max="59" value="00" oninput="clampInput(this,0,59)">
-          <button class="s-arrow" onclick="adjInput('u-m',-1,0,59,true)">▼</button>
+          <button class="s-arrow" onmousedown="startHold('u-m',1,0,59,true)" ontouchstart="event.preventDefault();startHold('u-m',1,0,59,true)" onmouseup="stopHold()" onmouseleave="stopHold()" ontouchend="stopHold()">▲</button>
+          <input class="time-input" type="number" id="u-m" min="0" max="59" value="30" oninput="clampInput(this,0,59)">
+          <button class="s-arrow" onmousedown="startHold('u-m',-1,0,59,true)" ontouchstart="event.preventDefault();startHold('u-m',-1,0,59,true)" onmouseup="stopHold()" onmouseleave="stopHold()" ontouchend="stopHold()">▼</button>
         </div>
         <div class="ampm-wrap">
           <button class="ampm-btn" id="am-btn" onclick="setAmPm('AM')">AM</button>
@@ -568,21 +568,21 @@ z-index: 999;
     <div id="t-setter" class="setter">
       <div class="setter-row">
         <div class="s-group">
-          <button class="s-arrow" onclick="adjInput('s-h',1,0,23)">▲</button>
+          <button class="s-arrow" onmousedown="startHold('s-h',1,0,23)" ontouchstart="event.preventDefault();startHold('s-h',1,0,23)" onmouseup="stopHold()" onmouseleave="stopHold()" ontouchend="stopHold()">▲</button>
           <input class="time-input" type="number" id="s-h" min="0" max="23" value="0" oninput="clampInput(this,0,23)">
-          <button class="s-arrow" onclick="adjInput('s-h',-1,0,23)">▼</button>
+          <button class="s-arrow" onmousedown="startHold('s-h',-1,0,23)" ontouchstart="event.preventDefault();startHold('s-h',-1,0,23)" onmouseup="stopHold()" onmouseleave="stopHold()" ontouchend="stopHold()">▼</button>
         </div>
         <div class="s-sep">:</div>
         <div class="s-group">
-          <button class="s-arrow" onclick="adjInput('s-m',1,0,59,true)">▲</button>
-          <input class="time-input" type="number" id="s-m" min="0" max="59" value="10" oninput="clampInput(this,0,59)">
-          <button class="s-arrow" onclick="adjInput('s-m',-1,0,59,true)">▼</button>
+          <button class="s-arrow" onmousedown="startHold('s-m',1,0,59,true)" ontouchstart="event.preventDefault();startHold('s-m',1,0,59,true)" onmouseup="stopHold()" onmouseleave="stopHold()" ontouchend="stopHold()">▲</button>
+          <input class="time-input" type="number" id="s-m" min="0" max="59" value="5" oninput="clampInput(this,0,59)">
+          <button class="s-arrow" onmousedown="startHold('s-m',-1,0,59,true)" ontouchstart="event.preventDefault();startHold('s-m',-1,0,59,true)" onmouseup="stopHold()" onmouseleave="stopHold()" ontouchend="stopHold()">▼</button>
         </div>
         <div class="s-sep">:</div>
         <div class="s-group">
-          <button class="s-arrow" onclick="adjInput('s-s',1,0,59,true)">▲</button>
+          <button class="s-arrow" onmousedown="startHold('s-s',1,0,59,true)" ontouchstart="event.preventDefault();startHold('s-s',1,0,59,true)" onmouseup="stopHold()" onmouseleave="stopHold()" ontouchend="stopHold()">▲</button>
           <input class="time-input" type="number" id="s-s" min="0" max="59" value="0" oninput="clampInput(this,0,59)">
-          <button class="s-arrow" onclick="adjInput('s-s',-1,0,59,true)">▼</button>
+          <button class="s-arrow" onmousedown="startHold('s-s',-1,0,59,true)" ontouchstart="event.preventDefault();startHold('s-s',-1,0,59,true)" onmouseup="stopHold()" onmouseleave="stopHold()" ontouchend="stopHold()">▼</button>
         </div>
       </div>
       <div class="s-labels">
@@ -707,6 +707,28 @@ function adjInput(id, d, min, max, wrap) {
     v = Math.max(min, Math.min(max, v));
   }
   el.value = v;
+}
+
+// long press — hold to repeat with acceleration
+var _lpTimer = null, _lpInterval = null;
+
+function startHold(id, d, min, max, wrap) {
+  adjInput(id, d, min, max, wrap);
+  var speed = 120;
+  _lpTimer = setTimeout(function() {
+    function tick() {
+      adjInput(id, d, min, max, wrap);
+      if (speed > 40) speed -= 10;
+      _lpInterval = setTimeout(tick, speed);
+    }
+    tick();
+  }, 400);
+}
+
+function stopHold() {
+  clearTimeout(_lpTimer);
+  clearTimeout(_lpInterval);
+  _lpTimer = null; _lpInterval = null;
 }function toggleTimer(){ tRun ? pauseTimer() : startTimer(); }
 
 function startTimer(){
